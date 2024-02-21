@@ -7,6 +7,8 @@ export default class Task extends Component {
     onDeleted: () => {},
     onToggleDone: () => {},
     label: '',
+    min: '',
+    sec: '',
     done: '',
     id: '',
     date: new Date(),
@@ -22,7 +24,7 @@ export default class Task extends Component {
   }
 
   render() {
-    const { label, onDeleted, onToggleDone, done, id, date } = this.props
+    const { label, onDeleted, onToggleDone, done, id, date, min, sec, timer, stopTimer } = this.props
 
     let className = ''
     if (done) {
@@ -34,8 +36,15 @@ export default class Task extends Component {
         <div className="view">
           <input className="toggle" type="checkbox" id={id} checked={done} onChange={onToggleDone} />
           <label htmlFor={id}>
-            <span className="description">{label}</span>
-            <span className="created">created {formatDistanceToNow(new Date(date), { addSuffix: true })}</span>
+            <span className="title">{label}</span>
+            <span className="description">
+              <button className="icon icon-play" onClick={timer}></button>
+              <button className="icon icon-pause" onClick={stopTimer}></button>
+              <span className="timer">
+                {min}:{sec}
+              </span>
+            </span>
+            <span className="description">created {formatDistanceToNow(new Date(date), { addSuffix: true })}</span>
           </label>
           <button className="icon icon-edit" type="button"></button>
           <button className="icon icon-destroy" type="button" onClick={onDeleted}></button>
