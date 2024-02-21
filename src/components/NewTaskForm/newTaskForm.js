@@ -1,5 +1,7 @@
 import { Component } from 'react'
+
 import './index.css'
+import Timer from '../Timer/timer'
 
 export default class NewTaskForm extends Component {
   static defaultProps = {
@@ -8,6 +10,8 @@ export default class NewTaskForm extends Component {
 
   state = {
     label: '',
+    min: '',
+    sec: '',
   }
 
   onLabelChange = e => {
@@ -16,26 +20,47 @@ export default class NewTaskForm extends Component {
     })
   }
 
+  onLabelChangeMin = e => {
+    this.setState({
+      min: e.target.value,
+    })
+  }
+
+  onLabelChangeSec = e => {
+    this.setState({
+      sec: e.target.value,
+    })
+  }
+
   onSubmit = e => {
     e.preventDefault()
-    this.props.onItemAdded(this.state.label)
+    this.props.onItemAdded(this.state.label, this.state.min, this.state.sec)
     this.setState({
       label: '',
+      min: '',
+      sec: '',
     })
   }
 
   render() {
     return (
-      <form className="header" onSubmit={this.onSubmit}>
+      <form className="new-todo-form" onSubmit={this.onSubmit}>
         <label htmlFor="">
           <input
             type="text"
             className="new-todo"
-            placeholder="What needs to be done?"
+            placeholder="Task"
             onChange={this.onLabelChange}
             value={this.state.label}
           />
+          <Timer
+            valueMin={this.state.min}
+            valueSec={this.state.sec}
+            onChangeMin={this.onLabelChangeMin}
+            onChangeSec={this.onLabelChangeSec}
+          />
         </label>
+        <button type="submit"></button>
       </form>
     )
   }

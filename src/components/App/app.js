@@ -31,12 +31,15 @@ export default class App extends Component {
     this.setState({ filter })
   }
 
-  createTodoItem(label) {
+  createTodoItem(label, min, sec) {
     return {
       label,
+      min,
+      sec,
       id: this.maxId++,
       done: false,
       date: new Date(),
+      timer: null,
     }
   }
 
@@ -54,9 +57,8 @@ export default class App extends Component {
     })
   }
 
-  deletedItem = id => {
+  deletedItem = idx => {
     this.setState(({ todoData }) => {
-      const idx = todoData.findIndex(el => el.id === id)
       return {
         todoData: [...todoData.slice(0, idx), ...todoData.slice(idx + 1)],
       }
@@ -67,25 +69,53 @@ export default class App extends Component {
     this.setState(({ todoData }) => ({ todoData: todoData.filter(item => !item.done) }))
   }
 
-  addItem = text => {
+  addItem = (text, min, sec) => {
     const textTrimmed = text.trim()
-    const newItem = this.createTodoItem(text)
+    const minTrimmed = min.trim()
+    const secTrimmed = sec.trim()
+    const newItem = this.createTodoItem(textTrimmed, minTrimmed, secTrimmed)
 
     this.setState(({ todoData }) => {
       if (!textTrimmed) {
         return ''
       }
+
       return {
         todoData: [...todoData, newItem],
       }
     })
   }
 
-  onToggleDone = id => {
+  onToggleDone = (idx, oldItem) => {
     this.setState(({ todoData }) => {
-      const idx = todoData.findIndex(el => el.id === id)
-      const oldItem = todoData[idx]
       const newItem = { ...oldItem, done: !oldItem.done }
+      return {
+        todoData: [...todoData.slice(0, idx), newItem, ...todoData.slice(idx + 1)],
+      }
+    })
+  }
+
+  timer = (idx, todos, oldItem) => {
+    let amountSeconds = Number(todos[idx].min) * 60 + Number(todos[idx].sec)
+
+    const timerId = setInterval(() => {
+      if (amountSeconds === 0) {
+        clearInterval(timerId)
+      }
+      this.displayTimer(amountSeconds, idx, timerId, oldItem)
+      amountSeconds--
+    }, 1000)
+  }
+
+  stopTimer = idx => {
+    clearInterval(this.state.todoData[idx].timer)
+  }
+
+  displayTimer = (amountSeconds, idx, timerId, oldItem) => {
+    this.setState(({ todoData }) => {
+      const minutes = Math.floor(amountSeconds / 60)
+      const remainderSeconds = amountSeconds % 60
+      const newItem = { ...oldItem, min: minutes, sec: remainderSeconds, timer: timerId }
       return {
         todoData: [...todoData.slice(0, idx), newItem, ...todoData.slice(idx + 1)],
       }
@@ -94,17 +124,22 @@ export default class App extends Component {
 
   render() {
     const { todoData, filter } = this.state
-
     const visibleItems = this.filter(todoData, filter)
+
     return (
       <>
-        <button>Click</button>
         <div className="todoapp">
           <header className="header">
-            <h1>todos</h1>
+            <h1>TODO</h1>
             <NewTaskForm onItemAdded={this.addItem} />
           </header>
-          <TaskList todos={visibleItems} onDeleted={this.deletedItem} onToggleDone={this.onToggleDone} />
+          <TaskList
+            todos={visibleItems}
+            onDeleted={this.deletedItem}
+            onToggleDone={this.onToggleDone}
+            timer={this.timer}
+            stopTimer={this.stopTimer}
+          />
           <Footer
             filter={filter}
             onFilterChange={this.onFilterChange}

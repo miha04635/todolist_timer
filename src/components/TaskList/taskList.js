@@ -2,12 +2,21 @@ import PropTypes from 'prop-types'
 
 import Task from '../Task/task'
 
-const TaskList = ({ todos, onDeleted, onToggleDone }) => {
+const TaskList = ({ todos, onDeleted, onToggleDone, timer, stopTimer }) => {
   const elements = todos.map(item => {
     const { id, ...itemProps } = item
-
+    const idx = todos.findIndex(el => el.id === id)
+    const oldItem = todos[idx]
     return (
-      <Task {...itemProps} key={id} onDeleted={() => onDeleted(id)} onToggleDone={() => onToggleDone(id)} id={id} />
+      <Task
+        {...itemProps}
+        key={id}
+        onDeleted={() => onDeleted(idx)}
+        onToggleDone={() => onToggleDone(idx, oldItem)}
+        id={id}
+        timer={() => timer(idx, todos, oldItem)}
+        stopTimer={() => stopTimer(idx)}
+      />
     )
   })
 
