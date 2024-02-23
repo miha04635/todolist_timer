@@ -24,7 +24,7 @@ export default class Task extends Component {
   }
 
   render() {
-    const { label, onDeleted, onToggleDone, done, id, date, min, sec, timer, stopTimer } = this.props
+    const { label, onDeleted, onToggleDone, done, id, date, min, sec, timer, stopTimer, disabled } = this.props
 
     let className = ''
     if (done) {
@@ -38,7 +38,7 @@ export default class Task extends Component {
           <label htmlFor={id}>
             <span className="title">{label}</span>
             <span className="description">
-              <button className="icon icon-play" onClick={timer}></button>
+              <button className="icon icon-play" onClick={timer} disabled={disabled}></button>
               <button className="icon icon-pause" onClick={stopTimer}></button>
               <span className="timer">
                 {min}:{sec}

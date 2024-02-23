@@ -10,6 +10,7 @@ const Timer = ({ onChangeMin, onChangeSec, valueMin, valueSec }) => {
         onChange={onChangeMin}
         value={valueMin}
         autoFocus
+        min={0}
       />
       <input
         className="new-todo-form__timer"
@@ -18,6 +19,7 @@ const Timer = ({ onChangeMin, onChangeSec, valueMin, valueSec }) => {
         onChange={onChangeSec}
         value={valueSec}
         autoFocus
+        min={0}
       />
     </>
   )
