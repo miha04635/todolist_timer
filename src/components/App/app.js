@@ -40,6 +40,7 @@ export default class App extends Component {
       done: false,
       date: new Date(),
       timer: null,
+      disabled: false,
     }
   }
 
@@ -57,7 +58,8 @@ export default class App extends Component {
     })
   }
 
-  deletedItem = idx => {
+  deletedItem = (idx, todos) => {
+    clearInterval(todos[idx].timer)
     this.setState(({ todoData }) => {
       return {
         todoData: [...todoData.slice(0, idx), ...todoData.slice(idx + 1)],
@@ -95,31 +97,35 @@ export default class App extends Component {
     })
   }
 
-  timer = (idx, todos, oldItem) => {
-    let amountSeconds = Number(todos[idx].min) * 60 + Number(todos[idx].sec)
-
-    const timerId = setInterval(() => {
-      if (amountSeconds === 0) {
-        clearInterval(timerId)
-      }
-      this.displayTimer(amountSeconds, idx, timerId, oldItem)
-      amountSeconds--
-    }, 1000)
-  }
-
-  stopTimer = idx => {
-    clearInterval(this.state.todoData[idx].timer)
-  }
-
-  displayTimer = (amountSeconds, idx, timerId, oldItem) => {
+  stopTimer = (idx, oldItem, todos) => {
     this.setState(({ todoData }) => {
-      const minutes = Math.floor(amountSeconds / 60)
-      const remainderSeconds = amountSeconds % 60
-      const newItem = { ...oldItem, min: minutes, sec: remainderSeconds, timer: timerId }
+      const newItem = { ...oldItem, disabled: false }
+      clearInterval(todos[idx].timer)
       return {
         todoData: [...todoData.slice(0, idx), newItem, ...todoData.slice(idx + 1)],
       }
     })
+  }
+
+  timer = (idx, todos) => {
+    let amountSeconds = Number(todos[idx].min) * 60 + Number(todos[idx].sec)
+    const timerId = setInterval(() => {
+      if (amountSeconds === 0) {
+        clearInterval(timerId)
+      }
+
+      this.setState(({ todoData }) => {
+        const minutes = Math.floor(amountSeconds / 60)
+        const remainderSeconds = amountSeconds % 60
+        const oldItem = todoData[idx]
+        const newItem = { ...oldItem, min: minutes, sec: remainderSeconds, timer: timerId, disabled: true }
+
+        return {
+          todoData: [...todoData.slice(0, idx), newItem, ...todoData.slice(idx + 1)],
+        }
+      })
+      amountSeconds--
+    }, 1000)
   }
 
   render() {
